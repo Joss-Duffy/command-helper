@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -74,42 +75,43 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h1>SQL Help</h1>
+    <div class="container">
+        <h1>SQL Help</h1>
 
-    <div class="dropdown">
-        <label for="queryList">Select a query:</label>
-        <select id="queryList" onchange="showQuery()">
-            <option value="">-- Select a query --</option>
-            <option value="createDbUser">Create Database User</option>
-			<option value="fixUsersLogContractor">Fix Users Contractors</option>           
-            <option value="GetActivityDetails">Get Activity Details</option>
-            <option value="getDigitalData">Get Digital Data</option>
-            <option value="getDigitalWeldData">Get Digital Weld PDF Data</option>
-            <option value="insertMissingWfTeams">Insert missing workflow teams</option>
-			<option value="resetChecklistToDefault">Reset Checklist to Default</option>
-            <option value="resetDigitalChecklist">Reset Digital Checklist</option>
-            <option value="ResetUsers">Reset Users</option>
-            <option value="testingReset">Reset Users (Testing)</option>
-			
-        </select>
+        <div class="dropdown">
+            <label for="queryList">Select a query:</label>
+            <select id="queryList" onchange="showQuery()">
+                <option value="">-- Select a query --</option>
+                <option value="createDbUser">Create Database User</option>
+                <option value="fixUsersLogContractor">Fix Users Contractors</option>
+                <option value="GetActivityDetails">Get Activity Details</option>
+                <option value="getDigitalData">Get Digital Data</option>
+                <option value="getDigitalWeldData">Get Digital Weld PDF Data</option>
+                <option value="insertMissingWfTeams">Insert missing workflow teams</option>
+                <option value="resetChecklistToDefault">Reset Checklist to Default</option>
+                <option value="resetDigitalChecklist">Reset Digital Checklist</option>
+                <option value="ResetUsers">Reset Users</option>
+                <option value="testingReset">Reset Users (Testing)</option>
+
+            </select>
+        </div>
+
+        <div class="query-display" id="queryDisplay" onclick="copyQuery()">
+            Select a query from the dropdown to see the details.
+        </div>
+
+        <div class="description" id="queryDescription"></div>
+
+        <div id="notification" class="notification">Copied to clipboard!</div>
     </div>
 
-    <div class="query-display" id="queryDisplay" onclick="copyQuery()">
-        Select a query from the dropdown to see the details.
-    </div>
+    <script>
+        const queries = {
 
-    <div class="description" id="queryDescription"></div>
-
-    <div id="notification" class="notification">Copied to clipboard!</div>
-</div>
-
-<script>
-    const queries = {
-	
-	"insertMissingWfTeams": `
+            "insertMissingWfTeams": `
 SELECT t2.*
 FROM workflowteam t2
 WHERE t2.projectId = 14
@@ -150,14 +152,14 @@ WHERE t2.projectId = 14
 	WHERE t1.projectId = 14
 	  AND t1.teamDescription = CONCAT(t2.teamNameDisplayValue, ' : teamsThatAreMissing')
   );`,
-	
-        "createDbUser": `
+
+            "createDbUser": `
 CREATE USER 'eida_db'@'%' IDENTIFIED BY 'EIDA*50*Db)';
 GRANT ALL PRIVILEGES ON eida_db.* TO 'eida_db'@'%' WITH GRANT OPTION;
 GRANT SUPER ON *.* TO 'eida_db'@'%' IDENTIFIED BY 'EIDA*50*Db)';
 SET GLOBAL max_allowed_packet = 20971520;`,
 
-        "resetChecklistToDefault": `
+            "resetChecklistToDefault": `
 UPDATE trackeractivitydetails
 SET digitalDocumentItemId = NULL,
     pdfAvailable = 'N',
@@ -168,13 +170,13 @@ SET digitalDocumentItemId = NULL,
     completedAtId = NULL
 WHERE trackeractivitydetailsid = '@trackeractivitydetailsid';`,
 
-        "GetActivityDetails": `
+            "GetActivityDetails": `
 SELECT s.digitalDocumentItemId 
 FROM trackeractivitydetails s
 WHERE s.activityId = (SELECT a.activityId FROM activity a WHERE a.activityName = ":activityName")
   AND s.equipmentListId = (SELECT e.equipmentListId FROM equipmentlist e WHERE e.tagNo = ":tagNo");`,
 
-        "getDigitalData": `
+            "getDigitalData": `
 SELECT fd.fieldName, fd.pageId, f.fieldName, fd.value
 FROM dditem i
 INNER JOIN ddiitem ii ON ii.documentId = i.id AND ii.deleted = 0
@@ -186,7 +188,7 @@ WHERE i.projectId = :projectId
   AND i.id = :digitalDocumentItemId
 ORDER BY fd.pageId, f.fieldName;`,
 
-        "getDigitalWeldData": `
+            "getDigitalWeldData": `
 SELECT h.documentIdCreatedWeldHistory, h.weldNo AS "Weld Number (1)",
        h.dateWelded AS "Date Welded",
        CONCAT(wr.welderId, ' - ', p.wpsName, ' - ', h.weldType) AS "Welder's ID",
@@ -213,7 +215,7 @@ INNER JOIN material ma ON ma.materialId = m.materialId
 WHERE h.documentId = 330542
 ORDER BY h.weldNo;`,
 
-        "resetDigitalChecklist": `
+            "resetDigitalChecklist": `
 UPDATE ddipfield AS fd
 INNER JOIN ddiipage ip ON ip.id = fd.pageId AND ip.deleted = 0
 INNER JOIN ddiitem ii ON ii.id = ip.itemId AND ii.deleted = 0
@@ -221,7 +223,7 @@ INNER JOIN dditem i ON i.id = ii.documentId AND i.deleted = 0
 SET fd.value = NULL, fd.modifiedById = 1, fd.modifiedAt = NOW()
 WHERE i.projectId = 1.? AND i.id = 2.? AND fd.value IS NOT NULL;`,
 
-        "ResetUsers": `
+            "ResetUsers": `
 UPDATE USER SET PASSWORD = 'naYUldWRed+UHp50vko+spyWEXr3orvU/4eNt+n126hTycWUajG8gdw5TH01la14';
 UPDATE USER SET emailAddress = CONCAT(userId, firstName, lastName, '@eidacentral.com');
 UPDATE personnel SET email = CONCAT(personnel.userId, personnel.personName, '@eidacentral.com');
@@ -231,14 +233,14 @@ UPDATE USER SET failedLoginAttempts = 0;
 UPDATE USER SET dateLastPwChange = NOW();
 UPDATE USER SET emailAddress = REPLACE(emailAddress, ' ', '');`,
 
-        "testingReset": `
+            "testingReset": `
 UPDATE user SET PASSWORD = 'rG6YzeRqlzbWo47LTYglfS56DFbnTLqYjJD6PxGVohBOsd9bHlb5I3oH2vcFH8Nt';
 UPDATE user SET dateLastPwChange = NOW();
 UPDATE user SET failedLoginAttempts = 0;
 update user set \`status\` = 'ACTIVE'
 `,
 
-        "fixUsersLogContractor": `
+            "fixUsersLogContractor": `
 UPDATE document d
 INNER JOIN genericlogdocument g ON d.documentId = g.documentId
 INNER JOIN userproject p ON (p.userId = g.requestedById AND p.projectId = :projectId)
@@ -248,59 +250,60 @@ WHERE g.projectId = :projectId
       SELECT su.userId FROM user su WHERE su.emailAddress = ":email"
   )
   AND d.contractorId != p.contractorId;`
-    };
+        };
 
-    const descriptions = {
-        "GetActivityDetails": "Find trackeractivitydetails for a checklist item by activityId and equipmentListId.",
-        "getDigitalWeldData": "Returns mapped DWH data for Global Project 6.",
-        "createDbUser": "Create a database user with all permissions.",
-        "resetDigitalChecklist": "Clears digital checklist data (doesn't reset icon).",
-        "resetChecklistToDefault": "Unlinks digital checklist and resets checklist flags.",
-        "testingReset": "Use for staging/testing environments."
-    };
+        const descriptions = {
+            "GetActivityDetails": "Find trackeractivitydetails for a checklist item by activityId and equipmentListId.",
+            "getDigitalWeldData": "Returns mapped DWH data for Global Project 6.",
+            "createDbUser": "Create a database user with all permissions.",
+            "resetDigitalChecklist": "Clears digital checklist data (doesn't reset icon).",
+            "resetChecklistToDefault": "Unlinks digital checklist and resets checklist flags.",
+            "testingReset": "Use for staging/testing environments."
+        };
 
-    function showQuery() {
-        const queryList = document.getElementById("queryList").value;
-        const queryText = queries[queryList] || "Select a query from the dropdown to see the details.";
-        document.getElementById("queryDisplay").textContent = queryText;
-        document.getElementById("queryDescription").innerHTML = descriptions[queryList] || "";
-        localStorage.setItem('selectedQuery', queryList);
-    }
-
-    function copyQuery() {
-        const queryText = document.getElementById("queryDisplay").textContent;
-        if (queryText && queryText !== "Select a query from the dropdown to see the details.") {
-            const tempInput = document.createElement("textarea");
-            tempInput.value = queryText;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand("copy");
-            document.body.removeChild(tempInput);
-            showNotification("Copied to clipboard!");
-        } else {
-            showNotification("No query selected to copy.");
+        function showQuery() {
+            const queryList = document.getElementById("queryList").value;
+            const queryText = queries[queryList] || "Select a query from the dropdown to see the details.";
+            document.getElementById("queryDisplay").textContent = queryText;
+            document.getElementById("queryDescription").innerHTML = descriptions[queryList] || "";
+            localStorage.setItem('selectedQuery', queryList);
         }
-    }
 
-    function showNotification(message) {
-        const notification = document.getElementById("notification");
-        notification.textContent = message;
-        notification.classList.add("show");
-        setTimeout(() => {
-            notification.classList.remove("show");
-        }, 2000);
-    }
-
-    function loadLastSelectedQuery() {
-        const lastSelectedQuery = localStorage.getItem("selectedQuery");
-        if (lastSelectedQuery) {
-            document.getElementById("queryList").value = lastSelectedQuery;
-            showQuery();
+        function copyQuery() {
+            const queryText = document.getElementById("queryDisplay").textContent;
+            if (queryText && queryText !== "Select a query from the dropdown to see the details.") {
+                const tempInput = document.createElement("textarea");
+                tempInput.value = queryText;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand("copy");
+                document.body.removeChild(tempInput);
+                showNotification("Copied to clipboard!");
+            } else {
+                showNotification("No query selected to copy.");
+            }
         }
-    }
 
-    window.onload = loadLastSelectedQuery;
-</script>
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.classList.add("show");
+            setTimeout(() => {
+                notification.classList.remove("show");
+            }, 2000);
+        }
+
+        function loadLastSelectedQuery() {
+            const lastSelectedQuery = localStorage.getItem("selectedQuery");
+            if (lastSelectedQuery) {
+                document.getElementById("queryList").value = lastSelectedQuery;
+                showQuery();
+            }
+        }
+
+        window.onload = loadLastSelectedQuery;
+    </script>
 
 </body>
+
 </html>
