@@ -193,8 +193,7 @@
 
             <div>
                 <h2>Copy Session</h2>
-                <div class="command-container"
-                    onclick="copyToClipboard(`copy([['isEida',sessionStorage.getItem('canCreateProject')===\"true\"],['projectId',sessionStorage.getItem('projectId')],['csrf',\`'\${sessionStorage.getItem('_csrf')}'\`],['discipline',\`'\${sessionStorage.getItem('discipline')??\"ALL\"}'\`],['isLevel1',sessionStorage.getItem('isLevel1User')===\"true\"],['defaultProjectName',\`'\${sessionStorage.getItem('defaultProjectName')}'\`],['userType',\`'\${sessionStorage.getItem('userType')}'\`],['currentUserId',\`'\${sessionStorage.getItem('userId')}'\`],['isLoginWithAuth0',\`'\${sessionStorage.getItem('isLoginWithAuth0')}'\`],['isMFAEnabled',\`'\${sessionStorage.getItem('isMFAEnabled')}'\`],['defaultDatePattern',\`'\${sessionStorage.getItem('defaultDatePattern')}'\`]].map(([k,v])=>\`let \${k} = \${v};\`).join('\\n'))`)">
+                <div class="command-container" onclick="copySessionCommand()">
                     <div class="command">Copy session variables to console</div>
                 </div>
             </div>
@@ -207,6 +206,11 @@
     </div>
 
     <script>
+
+        function copySessionCommand() {
+            const cmd = `copy([['isEida',sessionStorage.getItem('canCreateProject')==="true"],['projectId',sessionStorage.getItem('projectId')],['csrf',\`'\${sessionStorage.getItem('_csrf')}'\`],['discipline',\`'\${sessionStorage.getItem('discipline')??"ALL"}'\`],['isLevel1',sessionStorage.getItem('isLevel1User')==="true"],['defaultProjectName',\`'\${sessionStorage.getItem('defaultProjectName')}'\`],['userType',\`'\${sessionStorage.getItem('userType')}'\`],['currentUserId',\`'\${sessionStorage.getItem('userId')}'\`],['isLoginWithAuth0',\`'\${sessionStorage.getItem('isLoginWithAuth0')}'\`],['isMFAEnabled',\`'\${sessionStorage.getItem('isMFAEnabled')}'\`],['defaultDatePattern',\`'\${sessionStorage.getItem('defaultDatePattern')}'\`]].map(([k,v])=>\`let \${k} = \${v};\`).join('\\n'))`;
+            copyToClipboard(cmd);
+        }
 
         function copyToClipboard(command) {
             const tempInput = document.createElement('textarea');
